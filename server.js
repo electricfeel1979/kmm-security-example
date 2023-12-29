@@ -16,10 +16,12 @@ const config = {
   CLIENT_SECRET: process.env.CLIENT_SECRET
 };
 
+console.log(config);
+
 const AUTH_OPTIONS = {
   callbackURL: '/auth/google/callback',
   clientID: config.CLIENT_ID,
-  clientSecret: config.clientSecret
+  clientSecret: config.CLIENT_SECRET
 };
 
 function verifyCallback(accessToken, refreshToken, profile, done) {
@@ -45,13 +47,26 @@ function checkLoggedIn(req, res, next) {
   next();
 }
 
-app.get('/auth/google', (req, res) => {});
+app.get('/auth/google', passport.authenticate('google', {
+  scope: ['email']
+}));
 
-app.get('/auth/google/callback', (req, res) => {});
+app.get('/auth/google/callback', passport.authenticate('google', {
+  failureRedirect: '/failure',
+  successRedirect: '/',
+  session: false
+}), (req, res) => {
+  console.log('Google called us back!');
+});
 
+app.get('/auth/logout', (req, res) => {});
 
 app.get('/secret', checkLoggedIn, (req, res) => {
   return res.send('Your personal secret value is 42!')
+});
+
+app.get('/failure', (req, res) => {
+  return res.send('Failed to log in!');
 })
 
 app.get('/', (req, res) => {
