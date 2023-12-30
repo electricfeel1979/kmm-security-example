@@ -100,8 +100,12 @@ app.get('/auth/google/callback', passport.authenticate('google', {
 });
 
 app.get('/auth/logout', (req, res) => {
-  req.logout(); //Removes req.user and clears any logged in session
-  return res.redirect('/');
+  req.logout((err) => {
+    if (err) {
+      return  next(err);
+    }
+    return res.redirect('/');
+  });
 });
 
 app.get('/secret', checkLoggedIn, (req, res) => {
