@@ -57,6 +57,22 @@ app.use(cookieSession({
   keys: [config.COOKIE_KEY_1, config.COOKIE_KEY_2]
 }))
 
+app.use((req, res, next) => {
+  // Stub out missing regenerate and save functions.
+  // These don't make sense for clients side sessions.
+  if (req.session && !req.session.regenerate) {
+    req.session.regenerate = (cb) => {
+      cb()
+    };
+  }
+  if (req.session && !req.session.save) {
+    req.session.save = (cb) => {
+      cb()
+    }
+  }
+  next();
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 
